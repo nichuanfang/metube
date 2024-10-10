@@ -107,7 +107,7 @@ class Download:
                 downloaded_file = os.path.join(self.download_dir, self.info.title + '.flac')
                 output_file = os.path.join(self.download_dir, self.info.title + '.m4a')
                 if self.info.quality == 'best':
-                    bitrate = '256'
+                    bitrate = '320'
                 else:
                     bitrate = self.info.quality
                 # 使用ffmpeg进行转换
