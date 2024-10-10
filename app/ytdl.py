@@ -106,10 +106,13 @@ class Download:
                 # 获取下载的文件路径
                 downloaded_file = os.path.join(self.download_dir, self.info.title + '.flac')
                 output_file = os.path.join(self.download_dir, self.info.title + '.m4a')
-
+                if self.info.quality == 'best':
+                    bitrate = '256'
+                else:
+                    bitrate = self.info.quality
                 # 使用ffmpeg进行转换
-                ffmpeg_cmd = ['ffmpeg', '-i', downloaded_file, '-acodec', 'alac', '-vcodec', 'copy', output_file]
-                subprocess.run(ffmpeg_cmd, check=True)
+                ffmpeg_cmd = ['ffmpeg', '-i', downloaded_file,"-map", "0:a:0", '-c:a', 'aac', '-b:a', f'{bitrate}k',"-movflags", "faststart", output_file]
+                subprocess.run(ffmpeg_cmd)
 
                 # 删除原始的 FLAC 文件
                 if os.path.exists(downloaded_file):
