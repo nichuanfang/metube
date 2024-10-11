@@ -10,6 +10,8 @@ pylint = "*"
 aiohttp = "*"
 python-socketio = "~=5.0"
 yt-dlp = "*"
+mutagen = "1.47.0"
+pillow = "10.4.0"
 
 [requires]
 python_version = "3.11"

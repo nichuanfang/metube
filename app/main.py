@@ -36,7 +36,7 @@ class Config:
         'YTDL_OPTIONS': '{}',
         'YTDL_OPTIONS_FILE': '',
         'ROBOTS_TXT': '',
-        'HOST': '0.0.0.0',
+        'HOST': '127.0.0.1' if platform.system() == 'Darwin' else '0.0.0.0',
         'PORT': '8081',
         'HTTPS': 'false',
         'CERTFILE': '',

@@ -12,6 +12,8 @@ import itertools
 import unicodedata
 
 import yt_dlp
+from PIL import Image
+from mutagen.mp4 import MP4, MP4Cover
 
 from dl_formats import get_format, get_opts, AUDIO_FORMATS
 
@@ -74,7 +76,8 @@ class Download:
         self.loop = None
         self.notifier = None
 
-    def _sanitize_filename(self,s, restricted=False, is_id=NO_DEFAULT):
+    @staticmethod
+    def _sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
         """Sanitizes a string so it could be used as part of a filename.
         @param restricted   Use a stricter subset of allowed characters
         @param is_id        Whether this is an ID that should be kept unchanged if possible.
@@ -128,6 +131,40 @@ class Download:
                 result = '_'
         return result
 
+    # 定义将图片嵌入到 AAC 文件中的函数
+    @staticmethod
+    def _embed_thumbnail_in_aac(audio_file, image_file):
+        # 临时缩略图文件的路径
+        temp_thumbnail = f"{os.path.basename(image_file)[:-4]}-thumbnail.jpg"
+
+        # 使用 PIL 加载图片
+        img = Image.open(os.path.abspath(image_file))
+        img.thumbnail((300, 300))  # 调整为缩略图大小
+        img.save(temp_thumbnail, format="JPEG")  # 保存缩略图为JPEG
+
+        # 重新加载缩略图数据
+        with open(temp_thumbnail, "rb") as thumbnail_file:
+            thumbnail_data = thumbnail_file.read()
+
+        # 打开 AAC 文件
+        audio = MP4(os.path.abspath(audio_file))
+
+        # 添加封面图片
+        audio.tags['covr'] = [MP4Cover(thumbnail_data, imageformat=MP4Cover.FORMAT_JPEG)]
+
+        # 保存修改后的 AAC 文件
+        audio.save()
+
+        # 删除生成的临时缩略图文件和缩略图
+        if os.path.exists(temp_thumbnail):
+            os.remove(temp_thumbnail)
+        else:
+            print(f"文件 {temp_thumbnail} 不存在")
+        if os.path.exists(image_file):
+            os.remove(image_file)
+        else:
+            print(f"文件 {image_file} 不存在")
+
     def _download(self):
         try:
             def put_status(st):
@@ -170,6 +207,7 @@ class Download:
                 # 获取下载的文件路径
                 downloaded_file = os.path.join(self.download_dir, f'{sanitized_filename}.flac')
                 output_file = os.path.join(self.download_dir, f'{sanitized_filename}.m4a')
+                thumbnail_file = os.path.join(self.download_dir, f'{sanitized_filename}.jpg')
                 if self.info.quality == 'best':
                     bitrate = '320'
                 else:
@@ -177,6 +215,8 @@ class Download:
                 # 使用ffmpeg进行转换
                 ffmpeg_cmd = ['ffmpeg', '-i', downloaded_file,"-map", "0:a:0", '-c:a', 'aac', '-b:a', f'{bitrate}k',"-movflags", "faststart", output_file]
                 subprocess.run(ffmpeg_cmd)
+                # 嵌入缩略图
+                self._embed_thumbnail_in_aac(output_file, thumbnail_file)
 
                 # 删除原始的 FLAC 文件
                 if os.path.exists(downloaded_file):

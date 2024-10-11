@@ -88,8 +88,19 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
                     "when": "before_dl",
                 }
             )
-            postprocessors.append({"key": "FFmpegMetadata"})
-            postprocessors.append({"key": "EmbedThumbnail"})
+            postprocessors.append(
+                {
+					'key': 'FFmpegMetadata',
+					'add_metadata': True
+			    }
+            )
+            if format != "m4a":
+                postprocessors.append(
+                    {
+                        "key": "EmbedThumbnail",
+                        'already_have_thumbnail': False
+                    }
+                )
 
     if format == "thumbnail":
         opts["skip_download"] = True
