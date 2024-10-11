@@ -74,7 +74,7 @@ class Download:
         self.loop = None
         self.notifier = None
 
-    def sanitize_filename(s, restricted=False, is_id=NO_DEFAULT):
+    def _sanitize_filename(self,s, restricted=False, is_id=NO_DEFAULT):
         """Sanitizes a string so it could be used as part of a filename.
         @param restricted   Use a stricter subset of allowed characters
         @param is_id        Whether this is an ID that should be kept unchanged if possible.
@@ -166,7 +166,7 @@ class Download:
 
             # 如果是m4a格式的 需要使用ffmpeg将flac转为aac格式
             if self.info.format == "m4a":
-                sanitized_filename = self.sanitize_filename(self.info.title)
+                sanitized_filename = self._sanitize_filename(self.info.title)
                 # 获取下载的文件路径
                 downloaded_file = os.path.join(self.download_dir, f'{sanitized_filename}.flac')
                 output_file = os.path.join(self.download_dir, f'{sanitized_filename}.m4a')
