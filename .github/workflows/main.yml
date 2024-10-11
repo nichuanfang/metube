@@ -45,3 +45,21 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: deploy metube
+        uses: cross-the-world/ssh-scp-ssh-pipelines@latest
+        continue-on-error: true
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          user: ${{ secrets.VPS_USER }}
+          pass: ${{ secrets.VPS_PASS }}
+          port: ${{ secrets.VPS_PORT }}
+          connect_timeout: 10s
+          first_ssh: |
+            cd /root/code/docker/dockerfile_work/metube
+            git checkout .
+            git pull --allow-unrelated-histories
+            docker-compose down
+            docker images  | grep ghcr.io/nichuanfang/metube | awk '{print $3}' | xargs docker rmi
+            docker pull ghcr.io/nichuanfang/metube:master
+            docker-compose up -d
