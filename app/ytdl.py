@@ -104,7 +104,7 @@ class Download:
             # 如果是m4a格式的 需要使用ffmpeg将flac转为aac格式
             if self.info.format == "m4a":
                 # 获取下载的文件路径
-                downloaded_file = os.path.join(self.download_dir, self.info.title + '.flac')
+                downloaded_file = os.path.join(self.download_dir, f'{self.info.title}.flac')
                 output_file = os.path.join(self.download_dir, self.info.title + '.m4a')
                 if self.info.quality == 'best':
                     bitrate = '320'
