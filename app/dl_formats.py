@@ -73,7 +73,7 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
         postprocessors.append(
             {
                 "key": "FFmpegExtractAudio",
-                "preferredcodec": "flac" if format == "m4a" else format,
+                "preferredcodec": format,
                 "preferredquality": 0 if quality == "best" else quality,
             }
         )
@@ -94,13 +94,12 @@ def get_opts(format: str, quality: str, ytdl_opts: dict) -> dict:
 					'add_metadata': True
 			    }
             )
-            if format != "m4a":
-                postprocessors.append(
-                    {
-                        "key": "EmbedThumbnail",
-                        'already_have_thumbnail': False
-                    }
-                )
+            postprocessors.append(
+                {
+                    "key": "EmbedThumbnail",
+                    'already_have_thumbnail': False
+                }
+            )
 
     if format == "thumbnail":
         opts["skip_download"] = True

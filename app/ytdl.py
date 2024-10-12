@@ -202,28 +202,28 @@ class Download:
             }).download([self.info.url])
 
             # 如果是m4a格式的 需要使用ffmpeg将flac转为aac格式
-            if self.info.format == "m4a":
-                sanitized_filename = self._sanitize_filename(self.info.title)
-                # 获取下载的文件路径
-                downloaded_file = os.path.join(self.download_dir, f'{sanitized_filename}.flac')
-                output_file = os.path.join(self.download_dir, f'{sanitized_filename}.m4a')
-                thumbnail_file = os.path.join(self.download_dir, f'{sanitized_filename}.jpg')
-                if self.info.quality == 'best':
-                    bitrate = '320'
-                else:
-                    bitrate = self.info.quality
-                # 使用ffmpeg进行转换
-                ffmpeg_cmd = ['ffmpeg', '-i', downloaded_file,"-map", "0:a:0", '-c:a', 'aac', '-b:a', f'{bitrate}k',"-movflags", "faststart", output_file]
-                subprocess.run(ffmpeg_cmd)
-                # 嵌入缩略图
-                self._embed_thumbnail_in_aac(output_file, thumbnail_file)
-
-                # 删除原始的 FLAC 文件
-                if os.path.exists(downloaded_file):
-                    os.remove(downloaded_file)
-
-                # 更新队列中的状态，表明已完成转换
-                self.status_queue.put({'status': 'finished', 'filename': output_file})
+            # if self.info.format == "m4a":
+            #     sanitized_filename = self._sanitize_filename(self.info.title)
+            #     # 获取下载的文件路径
+            #     downloaded_file = os.path.join(self.download_dir, f'{sanitized_filename}.flac')
+            #     output_file = os.path.join(self.download_dir, f'{sanitized_filename}.m4a')
+            #     thumbnail_file = os.path.join(self.download_dir, f'{sanitized_filename}.jpg')
+            #     if self.info.quality == 'best':
+            #         bitrate = '320'
+            #     else:
+            #         bitrate = self.info.quality
+            #     # 使用ffmpeg进行转换
+            #     ffmpeg_cmd = ['ffmpeg', '-i', downloaded_file,"-map", "0:a:0", '-c:a', 'aac', '-b:a', f'{bitrate}k',"-movflags", "faststart", output_file]
+            #     subprocess.run(ffmpeg_cmd)
+            #     # 嵌入缩略图
+            #     self._embed_thumbnail_in_aac(output_file, thumbnail_file)
+            #
+            #     # 删除原始的 FLAC 文件
+            #     if os.path.exists(downloaded_file):
+            #         os.remove(downloaded_file)
+            #
+            #     # 更新队列中的状态，表明已完成转换
+            #     self.status_queue.put({'status': 'finished', 'filename': output_file})
 
             self.status_queue.put({'status': 'finished' if ret == 0 else 'error'})
 
